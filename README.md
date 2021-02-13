@@ -1,6 +1,10 @@
 # Twitter Live Monitor
+![alt text](img01.png)
+
 ## Overview
 Twitter Live Monitor shows you live streaming tweet data with various visualization like word cloud, sentiment analysis and word frequency
+
+
 
 ## Tools & Technologies
 - Python
@@ -13,7 +17,7 @@ Twitter Live Monitor shows you live streaming tweet data with various visualizat
 	- Matplotlib
 
 ## Get Started
-1. Install required python library described above
+1. Install required python libraries described above
 2. Create a Twitter API Account [here](https://developer.twitter.com/en/docs/twitter-api) 
 3. Save Twitter API credentials in a config file and keep it somewhere safe.  
 4. Specify the location of the config file in the `filepath` variable in `twitter_stream_data_gen.py` 
