@@ -7,10 +7,13 @@ from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 from matplotlib.animation import FuncAnimation
 import spacy
 import os 
+import time
+import mplcursors
+
 
 sns.set() 
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2,  figsize=(16,8))
-fig.suptitle('Live Tweet Monitor')
+fig.suptitle('Twitter Live Monitor')
 
 # vals for ax2
 x_vals = []
@@ -48,18 +51,16 @@ def count_words(df):
 	size = df.shape[0]
 	return df_word_count
 
+def on_hover(df, x, y):
+
+	row = df.loc[(df.subjectivity == x) & (df.sentiment == y)]
+	tweet_string = row['tweet'].to_string(index=False)
+	user_name = row['user_name'].to_string(index=False)
+	return "@{}: {}".format(user_name, tweet_string)
+
 def animate1(i):
 
 	df = pd.read_csv(filename)
-
-	# ax1
-	xs = df['subjectivity']
-	ys = df['sentiment']
-	ax1.cla()
-	sns.scatterplot(x=xs, y=ys, ax=ax1)
-	ax1.set_xlabel('Subjectivity', labelpad=0.2, fontsize=10) 
-	ax1.set_ylabel('Sentiment', labelpad=0.2, fontsize=10) 
-	ax1.set_title("Sentiment and Subjectivity of Individual Tweets")
 
 	# ax2
 	x_vals.append(df.shape[0])
@@ -69,15 +70,26 @@ def animate1(i):
 	ax2.set_title("Overall Sentiment")
 
 	# ax4
-	df = count_words(df)
+	df_word_count = count_words(df)
 	ax4.cla() 	
-	sns.barplot(df.values, df.index, ax=ax4)
+	sns.barplot(df_word_count.values, df_word_count.index, ax=ax4)
 	ax4.set_title('Word Frequency')
 	ax4.set_xlabel("count", labelpad=0.2)
 
 def animate2(i):
 
 	df = pd.read_csv(filename)	
+
+	# ax1
+	ax1.cla()
+	sns.scatterplot(x=df['subjectivity'], y=df['sentiment'], ax=ax1)
+	ax1.set_xlabel('Subjectivity', labelpad=0.2, fontsize=10) 
+	ax1.set_ylabel('Sentiment', labelpad=0.2, fontsize=10) 
+	ax1.set_title("Sentiment and Subjectivity of Individual Tweets")
+
+	# Show the user name and tweet on mouse over
+	crs = mplcursors.cursor(ax1,hover=True)
+	crs.connect("add", lambda sel: sel.annotation.set_text(on_hover(df,sel.target[0], sel.target[1])))
 
 	# ax3
 	# Limit to the recent 100 tweets 
@@ -92,11 +104,11 @@ def main():
 
 	print('Waiting for incoming data... ')
 
-	while not os.path.isfile(path):
-		time.sleep(5)
+	while not os.path.isfile(filename):
+		time.sleep(1)
 
 	ani1 = FuncAnimation(plt.gcf(), animate1, interval = 1_000)
-	ani2 = FuncAnimation(plt.gcf(), animate2, interval = 3_000)
+	ani2 = FuncAnimation(plt.gcf(), animate2, interval = 5_000)
 
 	plt.tight_layout()
 	plt.show()

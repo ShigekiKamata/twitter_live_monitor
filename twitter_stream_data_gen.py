@@ -6,6 +6,7 @@ import csv
 from textblob import TextBlob
 import re
 import spacy
+import io
 
 
 #----------------------------------
@@ -33,14 +34,15 @@ class TweetListener(StreamListener):
 
 		print("@{} -------- {}".format(tweet.user.screen_name, tweet_string))
 
-		with open('stream_data.csv', 'a') as csv_file:
-			csv_writer = csv.DictWriter(csv_file, fieldnames=['created_at', 'tweet', 'sentiment', 'subjectivity'], 
+		with open('stream_data.csv', 'a', encoding="utf-8") as csv_file:
+			csv_writer = csv.DictWriter(csv_file, fieldnames=['created_at', 'user_name','tweet', 'sentiment', 'subjectivity'], 
 				lineterminator = '\n')
 
 			blob = TextBlob(tweet_string).sentiment
 
 			data = {
 			    "created_at": tweet.created_at,
+				"user_name": tweet.user.screen_name,
 			    "tweet": tweet_string,
 			     'sentiment': blob[0], 
 			     'subjectivity': blob[1]
@@ -88,10 +90,10 @@ def deEmojify(inputString):
 
 if __name__ == '__main__':
 
-	with open('stream_data.csv', 'w') as csv_file:
-	    csv_writer = csv.DictWriter(csv_file, fieldnames=['created_at', 'tweet', 'sentiment', 'subjectivity'])
+	with open('stream_data.csv', 'w', encoding='utf-8') as csv_file:
+	    csv_writer = csv.DictWriter(csv_file, fieldnames=['created_at', 'user_name', 'tweet', 'sentiment', 'subjectivity'])
 	    csv_writer.writeheader()
 
 	stream = create_stream()
-	stream.filter(track=['Senate'], languages=['en'])
+	stream.filter(track=['Mardi Gras'], languages=['en'])
 	
